@@ -4,10 +4,14 @@ class ArticlesController < ApplicationController
 
   # GET /articles
   def index
-    @articles = Article.all
-
+    if current_user
+      @articles = Article.where(private: false).or(current_user.articles.where(private: true))
+    else
+      @articles = Article.where(private: false)
+    end
     render json: @articles
   end
+  
 
   # GET /articles/1
   def show
@@ -59,6 +63,6 @@ class ArticlesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def article_params
-      params.require(:article).permit(:title, :content, :user_id)
+      params.require(:article).permit(:title, :content, :user_id, :private)
     end
 end
