@@ -15,22 +15,17 @@ class ArticlesController < ApplicationController
 
   # GET /articles/1
   def show
-    render json: @article
+    render json: @article, include: :comments
   end
 
   # POST /articles
   def create
-    @article = Article.new(article_params)
-
-    if article_params[:user_id] =! current_user.id
-      render json: @article.errors, status: :unprocessable_entity
-    else
+    @article = Article.new(title: article_params[:title], content: article_params[:content], user_id: current_user.id, private: article_params[:private])
       if @article.save
         render json: @article, status: :created, location: @article
       else
         render json: @article.errors, status: :unprocessable_entity
       end
-    end
   end
 
   # PATCH/PUT /articles/1
@@ -63,6 +58,6 @@ class ArticlesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def article_params
-      params.require(:article).permit(:title, :content, :user_id, :private)
+      params.require(:article).permit(:title, :content, :private)
     end
 end
